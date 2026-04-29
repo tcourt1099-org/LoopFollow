@@ -10,14 +10,7 @@ struct MoreMenuView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var showAlert = false
-    @State private var showAlarmsView = false
-    @State private var showRemoteView = false
-    @State private var showNightscoutView = false
-    @State private var showSnoozerView = false
-    @State private var showTreatmentsView = false
-    @State private var showStatsView = false
-    @State private var showHomeView = false
-    @State private var showLogView = false
+    @State private var currentVersion: String = AppVersionManager().version()
 
     var body: some View {
         List {
@@ -31,17 +24,27 @@ struct MoreMenuView: View {
 
             // Features
             Section("Features") {
+                let tabs = Storage.shared.orderedTabBarItems()
                 ForEach(TabItem.featureOrder) { item in
-                    Button { openItem(item) } label: {
-                        Label(item.displayName, systemImage: item.icon)
-                            .foregroundStyle(.primary)
+                    if let tabIndex = tabs.firstIndex(of: item) {
+                        Button {
+                            Observable.shared.selectedTabIndex.value = tabIndex
+                        } label: {
+                            Label(item.displayName, systemImage: item.icon)
+                                .foregroundStyle(.primary)
+                        }
+                    } else {
+                        NavigationLink(value: MenuRoute(item)) {
+                            Label(item.displayName, systemImage: item.icon)
+                                .foregroundStyle(.primary)
+                        }
                     }
                 }
             }
 
             // Logging
             Section("Logging") {
-                Button { showLogView = true } label: {
+                NavigationLink(value: MenuRoute.log) {
                     Label("View Log", systemImage: "doc.text.magnifyingglass")
                         .foregroundStyle(.primary)
                 }
@@ -84,7 +87,7 @@ struct MoreMenuView: View {
 
             // Build Information
             Section("Build Information") {
-                buildInfoRow(title: "Version", value: AppVersionManager().version(), color: versionTint)
+                buildInfoRow(title: "Version", value: currentVersion, color: versionTint)
                 buildInfoRow(title: "Latest version", value: latestVersion ?? "Fetching…", color: .secondary)
 
                 let build = BuildDetails.default
@@ -112,30 +115,7 @@ struct MoreMenuView: View {
             Text(alertMessage)
         }
         .navigationDestination(for: SettingsRoute.self) { $0.destination }
-        .navigationDestination(isPresented: $showAlarmsView) {
-            AlarmsContainerView()
-        }
-        .navigationDestination(isPresented: $showRemoteView) {
-            RemoteContentView()
-        }
-        .navigationDestination(isPresented: $showNightscoutView) {
-            NightscoutContentView()
-        }
-        .navigationDestination(isPresented: $showSnoozerView) {
-            SnoozerView()
-        }
-        .navigationDestination(isPresented: $showTreatmentsView) {
-            TreatmentsView()
-        }
-        .navigationDestination(isPresented: $showStatsView) {
-            AggregatedStatsContentView(mainViewController: MainViewController.shared)
-        }
-        .navigationDestination(isPresented: $showHomeView) {
-            HomeContentView(isModal: true)
-        }
-        .navigationDestination(isPresented: $showLogView) {
-            LogView()
-        }
+        .navigationDestination(for: MenuRoute.self) { $0.destination }
     }
 
     // MARK: - Helpers
@@ -146,26 +126,6 @@ struct MoreMenuView: View {
             Spacer()
             Text(value)
                 .foregroundStyle(color)
-        }
-    }
-
-    private func openItem(_ item: TabItem) {
-        // Check if the item is in the tab bar — if so, switch to it
-        let orderedItems = Storage.shared.orderedTabBarItems()
-        if let index = orderedItems.firstIndex(of: item) {
-            Observable.shared.selectedTabIndex.value = index
-            return
-        }
-
-        // Otherwise push it onto the navigation stack
-        switch item {
-        case .home: showHomeView = true
-        case .alarms: showAlarmsView = true
-        case .remote: showRemoteView = true
-        case .nightscout: showNightscoutView = true
-        case .snoozer: showSnoozerView = true
-        case .treatments: showTreatmentsView = true
-        case .stats: showStatsView = true
         }
     }
 
@@ -186,10 +146,48 @@ struct MoreMenuView: View {
         let (latest, newer, blacklisted) = await mgr.checkForNewVersionAsync()
         latestVersion = latest ?? "Unknown"
 
-        let current = mgr.version()
         versionTint = blacklisted ? .red
             : newer ? .orange
-            : latest == current ? .green
+            : latest == currentVersion ? .green
             : .secondary
+    }
+}
+
+// MARK: – Menu routing
+
+enum MenuRoute: Hashable {
+    case home
+    case alarms
+    case remote
+    case nightscout
+    case snoozer
+    case treatments
+    case stats
+    case log
+
+    init?(_ item: TabItem) {
+        switch item {
+        case .home: self = .home
+        case .alarms: self = .alarms
+        case .remote: self = .remote
+        case .nightscout: self = .nightscout
+        case .snoozer: self = .snoozer
+        case .treatments: self = .treatments
+        case .stats: self = .stats
+        }
+    }
+
+    @ViewBuilder
+    var destination: some View {
+        switch self {
+        case .home: HomeContentView(isModal: true)
+        case .alarms: AlarmsContainerView()
+        case .remote: RemoteContentView()
+        case .nightscout: NightscoutContentView()
+        case .snoozer: SnoozerView()
+        case .treatments: TreatmentsView()
+        case .stats: AggregatedStatsContentView(mainViewController: MainViewController.shared)
+        case .log: LogView()
+        }
     }
 }

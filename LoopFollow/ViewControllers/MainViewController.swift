@@ -24,11 +24,11 @@ private struct APNSCredentialSnapshot: Equatable {
 }
 
 class MainViewController: UIViewController, ChartViewDelegate, UNUserNotificationCenterDelegate {
-    /// Singleton reference set during viewDidLoad. Used by code that needs
-    /// to reach MainViewController without walking the view hierarchy.
-    private(set) weak static var shared: MainViewController?
-
-    var isPresentedAsModal: Bool = false
+    /// Single shared instance. Constructed at app launch via
+    /// `LoopFollowApp.init()` so that all lifecycle setup in `viewDidLoad`
+    /// (Combine sinks, observers, scheduleAllTasks, migrations) runs
+    /// regardless of where the Home tab sits in the user's tab bar order.
+    static let shared = MainViewController()
 
     var BGChart: LineChartView!
     var BGChartFull: LineChartView!
@@ -171,7 +171,6 @@ class MainViewController: UIViewController, ChartViewDelegate, UNUserNotificatio
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        MainViewController.shared = self
 
         setupUI()
 
@@ -504,7 +503,7 @@ class MainViewController: UIViewController, ChartViewDelegate, UNUserNotificatio
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("refresh"), object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
 
     // Clean all timers and start new ones when refreshing
