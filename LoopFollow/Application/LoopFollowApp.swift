@@ -7,14 +7,6 @@ import SwiftUI
 struct LoopFollowApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
-    init() {
-        // Force-load MainViewController.shared so its viewDidLoad runs at launch.
-        // All app-lifecycle work (Combine sinks, observers, scheduleAllTasks,
-        // migrations) lives there and must run regardless of whether the Home
-        // tab is rendered (it isn't, if the user moved Home to the Menu).
-        MainViewController.shared.loadViewIfNeeded()
-    }
-
     var body: some Scene {
         WindowGroup {
             MainTabView()
