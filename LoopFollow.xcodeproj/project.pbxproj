@@ -76,6 +76,7 @@
 		65E153C32E4BB69100693A4F /* URLTokenValidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E153C22E4BB69100693A4F /* URLTokenValidationView.swift */; };
 		65E8A2862E44B0300065037B /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8A2852E44B0300065037B /* VolumeButtonHandler.swift */; };
 		66E3D12E66AA4534A144A54B /* BackgroundRefreshManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CA8BE0B3D247408FE088B4 /* BackgroundRefreshManager.swift */; };
+		9C7FB98C98BE4FF98F4815EE /* Telemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFBE69CEF18416D84959974 /* Telemetry.swift */; };
 		A1A1A10001000000A0CFEED1 /* APNsCredentialValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A1A10001000000A0CFEED2 /* APNsCredentialValidator.swift */; };
 		A1A1A10002000000A0CFEED1 /* LogRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A1A10002000000A0CFEED2 /* LogRedactor.swift */; };
 		A1B2C3D4E5F6A7B8C9D0E1F3 /* StatsDisplayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* StatsDisplayModel.swift */; };
@@ -445,7 +446,6 @@
 		FCC6886B24898FD800A0279D /* ObservationToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC6886A24898FD800A0279D /* ObservationToken.swift */; };
 		FCC6886D2489909D00A0279D /* AnyConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC6886C2489909D00A0279D /* AnyConvertible.swift */; };
 		FCC6886F2489A53800A0279D /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCC6886E2489A53800A0279D /* AppConstants.swift */; };
-		9C7FB98C98BE4FF98F4815EE /* Telemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFBE69CEF18416D84959974 /* Telemetry.swift */; };
 		FCD2A27D24C9D044009F7B7B /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCD2A27C24C9D044009F7B7B /* Globals.swift */; };
 		FCE537BC249A4D7D00F80BF8 /* carbBolusArrays.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCE537BB249A4D7D00F80BF8 /* carbBolusArrays.swift */; };
 		FCEF87AC24A141A700AE6FA0 /* Localizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEF87AA24A1417900AE6FA0 /* Localizer.swift */; };
@@ -576,6 +576,7 @@
 		B500000000000000000000C1 /* QuickPickSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPickSectionHeader.swift; sourceTree = "<group>"; };
 		B7D2A4EFD18B7B7748B6669E /* FutureCarbsAlarmEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureCarbsAlarmEditor.swift; sourceTree = "<group>"; };
 		BB2C3D4E5F6A7B8C9D0E1F2A /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		BDFBE69CEF18416D84959974 /* Telemetry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Telemetry.swift; sourceTree = "<group>"; };
 		CC3D4E5F6A7B8C9D0E1F2A3B /* MoreMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreMenuView.swift; sourceTree = "<group>"; };
 		DD0247582DB2E89600FCADF6 /* AlarmCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmCondition.swift; sourceTree = "<group>"; };
 		DD02475B2DB2E8FB00FCADF6 /* BuildExpireCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildExpireCondition.swift; sourceTree = "<group>"; };
@@ -937,7 +938,6 @@
 		FCC6886A24898FD800A0279D /* ObservationToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationToken.swift; sourceTree = "<group>"; };
 		FCC6886C2489909D00A0279D /* AnyConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyConvertible.swift; sourceTree = "<group>"; };
 		FCC6886E2489A53800A0279D /* AppConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
-		BDFBE69CEF18416D84959974 /* Telemetry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Telemetry.swift; sourceTree = "<group>"; };
 		FCC688702489A57C00A0279D /* Loop Follow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Loop Follow.entitlements"; sourceTree = "<group>"; };
 		FCD2A27C24C9D044009F7B7B /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		FCE537BB249A4D7D00F80BF8 /* carbBolusArrays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = carbBolusArrays.swift; sourceTree = "<group>"; };
