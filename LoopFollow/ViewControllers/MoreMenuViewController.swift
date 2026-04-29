@@ -343,8 +343,62 @@ class MoreMenuViewController: UIViewController {
             presentSimpleAlert(title: "No Logs Available", message: "There are no logs to share.")
             return
         }
-        let avc = UIActivityViewController(activityItems: files, applicationActivities: nil)
+
+        let noticeView = ShareLogNoticeView(
+            onCancel: { [weak self] in
+                self?.dismiss(animated: true)
+            },
+            onShare: { [weak self] noticeText in
+                self?.dismiss(animated: true) {
+                    self?.presentLogShareSheet(noticeText: noticeText, logFiles: files)
+                }
+            }
+        )
+        let host = UIHostingController(rootView: noticeView)
+        host.overrideUserInterfaceStyle = Storage.shared.appearanceMode.value.userInterfaceStyle
+        host.modalPresentationStyle = .formSheet
+        present(host, animated: true)
+    }
+
+    private func presentLogShareSheet(noticeText: String, logFiles: [URL]) {
+        var items: [Any] = logFiles
+        if let noticeURL = writeShareNoticeFile(text: noticeText) {
+            items.insert(noticeURL, at: 0)
+        }
+        let avc = UIActivityViewController(activityItems: items, applicationActivities: nil)
         present(avc, animated: true)
+    }
+
+    private func writeShareNoticeFile(text: String) -> URL? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd_HHmm"
+        let timestamp = formatter.string(from: Date())
+
+        let version = AppVersionManager().version()
+        let branchAndSha = BuildDetails.default.branchAndSha
+
+        let body = text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "(no description provided)"
+            : text
+
+        let contents = """
+        LoopFollow Log Share Notice
+        Date: \(ISO8601DateFormatter().string(from: Date()))
+        App version: \(version) (\(branchAndSha))
+
+        User description:
+        \(body)
+        """
+
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ShareNotice_\(timestamp).txt")
+        do {
+            try contents.write(to: url, atomically: true, encoding: .utf8)
+            return url
+        } catch {
+            LogManager.shared.log(category: .general, message: "Failed to write share notice file: \(error)")
+            return nil
+        }
     }
 
     private func openURL(_ urlString: String) {

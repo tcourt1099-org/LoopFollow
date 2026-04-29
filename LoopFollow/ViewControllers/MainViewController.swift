@@ -1056,6 +1056,11 @@ class MainViewController: UIViewController, UITableViewDataSource, ChartViewDele
             Storage.shared.migrateStep7()
             Storage.shared.migrationStep.value = 7
         }
+
+        if Storage.shared.migrationStep.value < 8 {
+            Storage.shared.migrateStep8()
+            Storage.shared.migrationStep.value = 8
+        }
     }
 
     @objc func appDidBecomeActive() {

@@ -48,6 +48,13 @@ extension Storage {
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: legacyNotificationIDs)
     }
 
+    func migrateStep8() {
+        // Default for debugLogLevel changed from false to true so users ship useful
+        // logs when they report a problem. Force-enable for existing users.
+        LogManager.shared.log(category: .general, message: "Running migrateStep8 — enabling debug log level")
+        debugLogLevel.value = true
+    }
+
     func migrateStep6() {
         // APNs credential separation
         LogManager.shared.log(category: .general, message: "Running migrateStep6 — APNs credential separation")
