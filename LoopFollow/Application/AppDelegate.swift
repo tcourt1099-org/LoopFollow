@@ -64,12 +64,47 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Detect Before-First-Unlock launch. If protected data is unavailable here,
         // StorageValues were cached from encrypted UserDefaults and need a reload
-        // on the first foreground after the user unlocks.
+        // once the device is unlocked.
         let bfu = !UIApplication.shared.isProtectedDataAvailable
         Storage.shared.needsBFUReload = bfu
         LogManager.shared.log(category: .general, message: "BFU check: isProtectedDataAvailable=\(!bfu), needsBFUReload=\(bfu)")
 
+        // Recovery is driven from AppDelegate (not MainViewController) because under
+        // the SwiftUI App lifecycle the home tab's UIHostingController is materialized
+        // lazily — on a BG-only launch (BGAppRefreshTask, BLE wake) MainViewController
+        // may not exist when the device is unlocked, and would miss willEnterForeground.
+        // protectedDataDidBecomeAvailable fires the moment file protection lifts and
+        // is the authoritative signal; willEnterForeground is a fallback.
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(protectedDataDidBecomeAvailable), name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
+        nc.addObserver(self, selector: #selector(handleWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+
+        // Race guard: protected data may have become available between the check
+        // above and the observer registration just now.
+        if Storage.shared.needsBFUReload, UIApplication.shared.isProtectedDataAvailable {
+            performBFUReloadIfNeeded()
+        }
+
         return true
+    }
+
+    // MARK: - BFU recovery
+
+    @objc private func protectedDataDidBecomeAvailable() {
+        performBFUReloadIfNeeded()
+    }
+
+    @objc private func handleWillEnterForeground() {
+        performBFUReloadIfNeeded()
+    }
+
+    private func performBFUReloadIfNeeded() {
+        guard Storage.shared.needsBFUReload else { return }
+        Storage.shared.needsBFUReload = false
+        LogManager.shared.log(category: .general, message: "BFU reload triggered — reloading all StorageValues")
+        Storage.shared.reloadAll()
+        LogManager.shared.log(category: .general, message: "BFU reload complete: url='\(Storage.shared.url.value)'")
+        NotificationCenter.default.post(name: .bfuReloadCompleted, object: nil)
     }
 
     func applicationWillTerminate(_: UIApplication) {
@@ -172,6 +207,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return .all
         }
     }
+}
+
+extension Notification.Name {
+    /// Posted by AppDelegate after a Before-First-Unlock recovery completes
+    /// (Storage.reloadAll has run with the now-decrypted UserDefaults).
+    static let bfuReloadCompleted = Notification.Name("LoopFollow.bfuReloadCompleted")
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
