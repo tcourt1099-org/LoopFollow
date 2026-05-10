@@ -37,15 +37,27 @@ update_follower () {
   echo_run git fetch
   echo_run git pull
 
-  # 2 · Apply the patch
-  if ! git apply --whitespace=nowarn "$PATCH_FILE"; then
+  # 2 · Build --exclude args for files in the patch that don't exist here.
+  #     Sister repos are intentionally stripped of dev-only files
+  #     (release.sh, auto_version_dev.yml, lint.yml, warn_main_pr.yml, …),
+  #     so any patch hunk targeting one of those would otherwise abort.
+  local apply_args=(--whitespace=nowarn)
+  while IFS= read -r missing; do
+    [ -z "$missing" ] && continue
+    apply_args+=("--exclude=$missing")
+    echo "ℹ️  Excluding $missing (not present in $DIR)"
+  done < <(git apply --check "$PATCH_FILE" 2>&1 \
+             | sed -nE 's/^error: (.+): No such file or directory$/\1/p')
+
+  # 3 · Apply the patch (with any excludes)
+  if ! git apply "${apply_args[@]}" "$PATCH_FILE"; then
     echo "‼️  Some changes could not be applied, so no changes were made."
-    echo "The command used was: git apply --whitespace=nowarn $PATCH_FILE"
+    echo "The command used was: git apply ${apply_args[*]} $PATCH_FILE"
     echo; echo "Use a different terminal to fix and apply the patch before continuing"
     pause
   fi
 
-  # 3 · Pause if any conflict markers remain
+  # 4 · Pause if any conflict markers remain
   if git ls-files -u | grep -q .; then
     echo "⚠️  Conflicts detected."
     echo "    If Fastfile or build_LoopFollow.yml were modified, these are expected."
@@ -53,7 +65,7 @@ update_follower () {
     pause
   fi
 
-  # 4 · Single commit capturing all staged changes
+  # 5 · Single commit capturing all staged changes
   git add -u
   git add $(git ls-files --others --exclude-standard) 2>/dev/null || true
   git commit -m "transfer v${new_ver} updates from LF to ${DIR}"
